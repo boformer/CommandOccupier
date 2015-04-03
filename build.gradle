@@ -1,0 +1,120 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'license'
+
+defaultTasks 'licenseFormat', 'build'
+
+group = 'com.github.boformer'
+archivesBaseName = project.name.toLowerCase()
+
+// Java version
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
+version = '0.1.0-SNAPSHOT'
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:1.1-SNAPSHOT'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sponge'
+        url = 'http://repo.spongepowered.org/maven'
+    }
+}
+
+// License header formatting
+license {
+    ext {
+        name = project.name
+        author = project.author
+        url = project.url
+    }
+
+    header rootProject.file('HEADER.txt')
+    include '**/*.java'
+
+    ignoreFailures false
+    strictCheck true
+
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+processResources {
+    // Include in final JAR
+    from 'LICENSE.txt'
+}
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourceJar
+    archives javadocJar
+}
+
+// Source compiler configuration
+configure(compileJava) {
+    options.compilerArgs += ['-Xlint:all', '-Xlint:-path']
+    options.deprecation = true
+    options.encoding = 'UTF-8'
+}
+
+// Set manifest entries
+jar {
+    manifest {
+        attributes(
+                'Built-By': System.properties['user.name'],
+                'Created-By': "${System.properties['java.vm.version']} (${System.properties['java.vm.vendor']})",
+                'Implementation-Name': project.name,
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': project.url
+        )
+    }
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+    options.jFlags('-Xms256m', '-Xmx512m')
+    options.links(
+            'http://www.slf4j.org/apidocs/',
+            'http://docs.guava-libraries.googlecode.com/git-history/v17.0/javadoc/',
+            'http://google.github.io/guice/api-docs/latest/javadoc/',
+            'http://zachsthings.com/configurate/configurate-core/apidocs/',
+            'http://zachsthings.com/configurate/configurate-hocon/apidocs/',
+            'http://flowpowered.com/math/',
+            'http://asm.ow2.org/asm50/javadoc/user/',
+            'http://docs.oracle.com/javase/6/docs/api/'
+    )
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    tasks.withType(Javadoc) {
+        // Disable the crazy super-strict doclint tool in Java 8
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
