@@ -99,16 +99,7 @@ javadoc {
     options.encoding = 'UTF-8'
     options.charSet = 'UTF-8'
     options.jFlags('-Xms256m', '-Xmx512m')
-    options.links(
-            'http://www.slf4j.org/apidocs/',
-            'http://docs.guava-libraries.googlecode.com/git-history/v17.0/javadoc/',
-            'http://google.github.io/guice/api-docs/latest/javadoc/',
-            'http://zachsthings.com/configurate/configurate-core/apidocs/',
-            'http://zachsthings.com/configurate/configurate-hocon/apidocs/',
-            'http://flowpowered.com/math/',
-            'http://asm.ow2.org/asm50/javadoc/user/',
-            'http://docs.oracle.com/javase/6/docs/api/'
-    )
+    options.links('http://spongepowered.github.io/SpongeAPI/')
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
